@@ -1,0 +1,30 @@
+<div style="padding-top:80px;padding-left:130px;">
+  <h5>Pages validées par : <strong><%= @user.email %></strong></h5><br><br><br>
+  <table id='users' class='table fixed-header-table'>
+    <thead class="" style="background-color: aliceblue;">
+    <tr class="pw_c_header">
+      <th width="150px;">Publication</th>
+      <th width="150px;">Parution</th>
+      <th width="50px;">Page</th>
+      <th width="150px;">Date validation</th>
+    </tr>
+
+    </thead>
+
+    <% @pages.each do |p| %>
+
+        <% page = PaperScannedPage.find(p) %>
+        <% parution = PaperParution.find(page.instance_id) %>
+        <% publi = PaperPublication.find(parution.instance_id) %>
+        <tr>
+          <td><%= publi.title %> <%= publi.publication_addon_name %></td>
+          <td><%= parution.publication_date.strftime("%d %m %Y") %></td>
+          <td><%= page.page_number %></td>
+          <td><%= page.manual_validation_date.strftime("%d %m %Y %H:%M") %></td>
+        </tr>
+    <% end %>
+  </table>
+
+  <div style="padding-left: 20px;"><%= link_to('Retour', users_path) %></div>
+</div>
+

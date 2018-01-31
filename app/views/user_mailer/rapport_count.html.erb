@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
+<style>
+  hr {
+  display: block;
+  margin-top: 15px;
+  margin-bottom: 15px;
+  border-style: inset;
+  border-width: 1px;
+  }
+  </style>
+</head>
+<body>
+    <h1>Rapport du <%= @dat %></h1><br>
+    <h3>Vérification Matchs Web</h3>
+    <table class="display table table-striped" style="font-size:14px;" cellspacing="3" >
+      <thead>
+      <tr>
+        <th>Email</th>
+        <th>Nbre traités</th>
+        <th>Durée totale</th>
+        <th>Heure début</th>
+        <th>Heure fin</th>
+        <th>Durée session</th>
+      </tr>
+      </thead>
+      <tbody>
+      <% total = 0 %>
+      <% @tab.each do |k, v| %>
+	<% unless @dd[k].nil? %>
+          <tr>
+            <td><%= k %></td>
+            <td align="center"><%= v %></td>
+            <% total += v %>
+            <td align="center"><%= @dureetot[k] %></td>
+            <td align="center"><%= I18n.l @dd[k][0], format: '%H:%M:%S' unless @dd[k].nil? %></td>
+            <td align="center"><%= I18n.l @df[k][0], format: '%H:%M:%S' unless @df[k].nil? %></td>
+            <td align="center"><%= @duree[k][0] unless @duree[k].nil? %></td>
+          </tr>
+          <% if @dd[k].count > 1 %>
+              <%  test = 0 %>
+              <%  @dd[k].each do |dd| %>
+                  <%    unless test == 0 %>
+                      <tr>
+                        <td></td>
+                        <td align="center"></td>
+                        <td align="center"></td>
+                        <td align="center"><%= I18n.l dd, format: '%H:%M:%S' %></td>
+                        <td align="center"><%= I18n.l @df[k][test.to_i], format: '%H:%M:%S' unless @dd[k].nil? %></td>
+                        <td align="center"><%= @duree[k][test.to_i] %></td>
+                      </tr>
+                  <% end %>
+                  <% test += 1 %>
+              <% end %>
+          <% end %>
+      <% end %>
+      <% end %>
+      </tbody>
+    </table>
+    <p style="font-size:14px; margin-left:70px;"><br>Nombre total de matchs traités : <strong><%= total %></strong> en <strong><%= @dureeall %></strong></p>
+    <hr>
+<h3>Vérification Matchs Print</h3>
+<table class="display table table-striped" style="font-size:14px;" cellspacing="2" width="100%">
+  <thead>
+  <tr>
+  <tr>
+    <th>Email</th>
+    <th>Nbre traités</th>
+    <th>Durée totale</th>
+    <th>Heure début</th>
+    <th>Heure fin</th>
+    <th>Durée session</th>
+  </tr>
+  </thead>
+  <tbody>
+  <% total = 0 %>
+  <% @ptab.each do |k, v| %>
+        <% unless @pdd[k].nil? %>
+      <tr>
+        <td><%= k %></td>
+        <td align="center"><%= v %></td>
+        <% total += v %>
+        <td align="center"><%= @pdureetot[k] %></td>
+        <td align="center"><%= I18n.l @pdd[k][0], format: '%H:%M:%S' unless @pdd[k][0].nil? %></td>
+        <td align="center"><%= I18n.l @pdf[k][0], format: '%H:%M:%S' unless @pdf[k][0].nil? %></td>
+        <td align="center"><%= @pduree[k][0] %></td>
+      </tr>
+      <% if @pdd[k].count > 1 %>
+          <%  test = 0 %>
+          <%  @pdd[k].each do |pdd| %>
+              <%    unless test == 0 %>
+                <tr>
+                  <td></td>
+                  <td align="center"></td>
+                  <td align="center"></td>
+                  <td align="center"><%= I18n.l pdd, format: '%H:%M:%S' %></td>
+                  <td align="center"><%= I18n.l @pdf[k][test.to_i], format: '%H:%M:%S' %></td>
+                  <td align="center"><%= @pduree[k][test.to_i] %></td>
+                </tr>
+            <% end %>
+            <% test += 1 %>
+          <% end %>
+      <% end %>
+  <% end %>
+  <% end %>
+  </tbody>
+</table>
+<p style="font-size:14px; margin-left:70px;"><br>Nombre total de matchs traités : <strong><%= total %></strong> en <strong><%= @pdureeall %></strong></p>
+</body>
+</html>
+

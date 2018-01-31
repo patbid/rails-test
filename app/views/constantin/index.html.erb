@@ -1,0 +1,13 @@
+<% if @erreur %>
+    <div class="row" style="height: 80px;padding-top: 150px; padding-left:30px;align: left;">
+      <p><%= @erreur %></p>
+    </div>
+<% else %>
+    <div class="row" style="height: 150px;padding-top: 50px;">
+      <%= render 'clip_select' %>
+    </div>
+    <div class="row">
+      <%= render 'page_imgs' %>
+    </div>
+<% end %>
+

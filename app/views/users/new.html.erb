@@ -1,0 +1,27 @@
+<div style="padding-left: 100px;">
+  <br><br><h2>Création d'un utilisateur</h2>
+  <br><br>
+  <%= form_tag create_user_path, class: "form-inline", role: "form" do |f| %>
+
+    <div class="form-group" style="height:40px;">
+      <label for="email" style="width:130px;">Email :</label>
+      <%= email_field_tag 'email', nil, size: 70, class: 'form-control' %>
+    </div><br>
+    <div class="form-group" style="height:40px;">
+      <label for="password" style="width:130px;">Mot de passe :</label>
+      <%= password_field_tag 'password', nil, size: 70,  class: 'form-control' %>
+    </div><br>
+    <div class="form-group" style="height:40px;">
+      <label for="password_confirmation" style="width:130px;">Confirmation :</label>
+      <%= password_field_tag 'password_confirmation', nil,  placeholder: 'Confirmez votre mot de passe', size: 70, class: 'form-control' %>
+    </div><br>
+    <div class="form-group" style="height:40px;">
+      <label for="controle" style="width:130px;">Contrôleur :</label>
+      <%= check_box_tag 'admin' %>
+    </div><br>
+      <br><br>
+
+    <span style="padding-left: 130px;">&nbsp;</span><button type="submit" class="btn btn-default">Valider</button>
+  <% end %>
+</div>
+

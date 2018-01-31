@@ -1,0 +1,81 @@
+<script type="text/javascript">
+
+    jQuery(document).ready(function(){
+
+        $('#new_clip').hide();
+
+        jQuery('#imgbox').Jcrop({
+            onChange: showCoords,
+            onSelect: showCoords
+        });
+
+    });
+
+    function showCoords(c)
+    {
+        jQuery('#x1').val(c.x);
+        jQuery('#y1').val(c.y);
+        jQuery('#x2').val(c.x2);
+        jQuery('#y2').val(c.y2);
+        jQuery('#w').val(c.w);
+        jQuery('#h').val(c.h);
+        jQuery('#new_clip').show();
+    };
+
+</script>
+<% if @erreur %>
+  <div class="row" style="height: 80px;padding-top: 150px; padding-left:30px;align: left;">
+    <p><%= @erreur %></p>
+    <p>
+      <%= form_tag '/scanned_pages', method: 'get', name: 'page_erreur', class: 'form-inline' do |f| %>
+        <%#= select_tag "parution", options_from_collection_for_select(@parus, "id", "created_at") %>
+          <%= hidden_field_tag "next_paru", -1 %>
+          <%= hidden_field_tag "current_paru", 0 %>
+          <%= hidden_field_tag "filtre", 0 %>
+          <%= hidden_field_tag "period", 0 %>
+          <%= hidden_field_tag "next_page", 0 %>
+          <%= hidden_field_tag "page", 0 %>
+          <%= hidden_field_tag "parution", 0 %>
+        <%= submit_tag "Revenir", class: "btn btn-primary" %>
+      <% end %>
+    </p>
+  </div>
+<% else %>
+  <div class="row" style="height: 150px;padding-top: 50px;" id="row_1">
+    <%= render 'valid_select' %>
+  </div>
+  <div class="row" id="row_kw" style="padding-top: 10px; display: none;">
+    <%= render 'show_kw' %>
+  </div>
+  <div class="row" style="height: 80px;padding-top: 50px; padding-left:30px;align: left;" id="row_2">
+    <%= render 'menu_select' %>
+  </div>
+  <% unless @page.nil? %>
+    <%= render 'page_clips' %>
+    <div class="row" id="marek">
+      <input type="hidden" name="path" value="<%= @page.scanned_page_path %>" />
+      <input type="hidden" name="image" value="<%= @page.image_filename %>" />
+    </div>
+  <% end %>
+<% end %>
+
+
+<script language="JavaScript">
+  function clickkw(id, kw) {
+    $('#row_kw').show();
+    $('#mon_id').val(id);
+    if (kw == '""') { kw = ''; }
+    $('#keyw').val(kw);
+    document.getElementById("keyw").focus();
+    $( '#page_1' ).hide();
+    $( '#page_2' ).show();
+  }
+
+  function validateform() {
+    var nb = $('#nb_sel').val();
+    if (nb == 0) {
+        if (confirm('Attention, aucun clip sélectionné !')) { return true; }
+        else { return false; }
+    }
+  }
+</script>

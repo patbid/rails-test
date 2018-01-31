@@ -1,0 +1,8 @@
+<p>Bonjour <%= @resource.email %>!</p>
+
+<p>Votre compte a été fermé suite à trop grand nombre d'erreurs de connexion.</p>
+
+<p>Merci de cliquer ci-dessous pour ré-activer votre compte:</p>
+
+<p><%= link_to 'Activer mon compte', unlock_url(@resource, unlock_token: @token) %></p>
+

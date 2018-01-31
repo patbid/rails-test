@@ -1,0 +1,46 @@
+<%# navigation styled for Bootstrap 3.0 %>
+<nav class="navbar navbar-inverse navbar-fixed-top">
+  <div class="container">
+    <div class="navbar-header" style="font-size:15px;">
+
+      <% if user_signed_in? %>
+          <% if current_page?(scanned_pages_path) || current_page?(root_path) %>
+              <%= link_to 'Pixtrakk clipping', root_path, class: 'navbar-brand', style: 'color:white' %>
+              <%= link_to 'Superposition', superposition_index_path, class: 'navbar-brand' %>
+              <%= link_to 'Web Matching images', matching_images_path, class: 'navbar-brand' %>
+              <%= link_to 'Print Matching images', paper_matching_images_path, class: 'navbar-brand' %>
+              <%= link_to 'Contrôles', controles_path, class: 'navbar-brand' if current_user.admin? %>
+          <% elsif current_page?(superposition_index_path) %>
+              <%= link_to 'Pixtrakk clipping', root_path, class: 'navbar-brand' %>
+              <%= link_to 'Superposition', superposition_index_path, class: 'navbar-brand', style: 'color:white' %>
+              <%= link_to 'Web Matching images', matching_images_path, class: 'navbar-brand' %>
+              <%= link_to 'Print Matching images', paper_matching_images_path, class: 'navbar-brand' %>
+              <%= link_to 'Contrôles', controles_path, class: 'navbar-brand' if current_user.admin? %>
+          <% elsif current_page?(matching_images_path) %>
+              <%= link_to 'Pixtrakk clipping', root_path, class: 'navbar-brand' %>
+              <%= link_to 'Superposition', superposition_index_path, class: 'navbar-brand' %>
+              <%= link_to 'Web Matching images', matching_images_path, class: 'navbar-brand', style: 'color:white' %>
+              <%= link_to 'Print Matching images', paper_matching_images_path, class: 'navbar-brand' %>
+              <%= link_to 'Contrôles', controles_path, class: 'navbar-brand' if current_user.admin? %>
+          <% elsif current_page?(paper_matching_images_path) %>
+              <%= link_to 'Pixtrakk clipping', root_path, class: 'navbar-brand' %>
+              <%= link_to 'Superposition', superposition_index_path, class: 'navbar-brand' %>
+              <%= link_to 'Web Matching images', matching_images_path, class: 'navbar-brand' %>
+              <%= link_to 'Print Matching images', paper_matching_images_path, class: 'navbar-brand', style: 'color:white' %>
+              <%= link_to 'Contrôles', controles_path, class: 'navbar-brand' if current_user.admin? %>
+          <% elsif current_page?(controles_path) %>
+              <%= link_to 'Pixtrakk clipping', root_path, class: 'navbar-brand' %>
+              <%= link_to 'Superposition', superposition_index_path, class: 'navbar-brand' %>
+              <%= link_to 'Web Matching images', matching_images_path, class: 'navbar-brand' %>
+              <%= link_to 'Print Matching images', paper_matching_images_path, class: 'navbar-brand' %>
+              <%= link_to 'Contrôles', controles_path, class: 'navbar-brand', style: 'color:white' if current_user.admin? %>
+          <% end %>
+      <% end %>
+    </div>
+    <% if user_signed_in? %>
+        <div align="right" valign="middle" style="font-size:14px; color: white; font-weight: 300;">
+          <br><%= link_to('Logout', logout_path) %>
+        </div>
+    <% end %>
+  </div>
+</nav>

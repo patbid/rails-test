@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
+  <style>
+    hr {
+      display: block;
+      margin-top: 15px;
+      margin-bottom: 15px;
+      border-style: inset;
+      border-width: 1px;
+    }
+  </style>
+</head>
+<body>
+<h1>Purge bdd <%= @date_purge %></h1><br>
+<p><strong><%= @nb_web %></strong> effacements dans la table web</p>
+<hr>
+<p><strong><%= @nb_print %></strong> effacements dans la table print</p>
+<hr>
+<p><strong><%= @nb_page %></strong> effacements dans la table paper_scanned_page</p>
+</body>
+</html>
+

@@ -1,0 +1,32 @@
+<% if @nb_img > 0 %>
+    <p><%= @nb_img %> image(s) trouvée(s)</p>
+    <% @imgs.each do |i, v| %>
+        <div style="width: 140px; margin:5px; float: left;">
+            <img src="<%= "#{@url}#{v['thumb']}" %>" width="140px">
+        </div>
+        <div style="width: 140px; margin:5px; float: left;">
+            <p><%= v['name'] %><br>
+            Score = <%= v['score'] %><br>
+            <%= v['prov'] %></p>
+        </div>
+    <% end %>
+    <% unless @ori_name.blank? %>
+        <div style="width: 140px; margin:5px; float: left;">
+            <% @ori_name.each do |k, v| %>
+              <p><%= k %><br>Score : <%= v %></p>
+            <% end %>
+        </div> 
+    <% end %>
+<% end %>
+<% unless @erreur.blank? %>
+    <% if @img %>
+        <div style="width: 120px; margin:5px; float: left;">
+          <%= image_tag(image_clip_path(@img), width: "120px") %>
+        </div>
+    <% end %>
+    <div style="clear: both; color: red;">
+      <%= @erreur %>
+    </div>
+<% end %>
+<hr style=" line-height: 1px; color: black;">
+

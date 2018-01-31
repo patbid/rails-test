@@ -1,0 +1,26 @@
+  <div style="padding-top:80px;">
+    <table id='users' class='table fixed-header-table'>
+      <thead class="" style="background-color: aliceblue;">
+      <tr class="pw_c_header">
+        <th width="150px;"></th>
+        <th width="350px;">Email</th>
+        <th>Nbre de pages validées</th>
+      </tr>
+
+      </thead>
+
+      <% @users.each do |u| %>
+
+          <tr>
+            <td></td>
+            <td><%= u.email %><%= link_to(" Voir", user_path(u.id)) %> <%= link_to("Modifier", edit_user_path(u.id), title: "Modifier l'utilisateur") %></td>
+            <td><%= nb_pages(u.id) %></td>
+          </tr>
+      <% end %>
+    </table>
+
+
+
+  <div style="padding-left: 150px;"><%= link_to('Nouvel utilisateur', new_user_path) %></div>
+  </div>
+

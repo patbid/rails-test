@@ -1,0 +1,53 @@
+<div class="col-md-12">
+  <%= form_tag '/scanned_pages', name: "valid_clips", id: "valid_clips" do |f| %>
+      <%= hidden_field_tag "page_id", @page.id %>
+      <%= hidden_field_tag "page", @next_page %>
+      <%= hidden_field_tag "filtre", @filter %>
+      <%= hidden_field_tag "period", @sel_period %>
+      <%= hidden_field_tag "parution", @parution.id %>
+      <% @papercredits.each do |pc| %>
+          <%= hidden_field_tag "flow_#{pc.flow_name}", 0 %>
+      <% end %>
+      <%= hidden_field_tag "new_ag", "" %>
+      <%= hidden_field_tag "flow_new", 0 %>
+      <div class="col-md-9" id="depose" style="max-width:900px;height:140px; padding: 0.5em; float: left; margin: 10px; border-style: solid;overflow-x: auto; overflow-y: auto; white-space: nowrap;">
+        <% @clips_done.each do |c| %>
+            <div id="sel_<%= c.id %>" style="float: left;">
+              <%= c.id %>
+              <%= "/#{flow_name(c.credit_id)}" unless c.credit_id.to_i == 0 %></br>
+              <% if c.clip_type == "manual" %>
+                  <% if @plus == 1 %>
+                      <span style="float: right; color: red;"><a href="#" onclick="clickkw(<%= c.id %>,'<%= c.keywords %>');return false;"><span style="color: red; font-weight:bold;">+</span></a></span>
+                  <% end %>
+                 <%= image_tag(image_clip_path(c.id), style: " border:5px solid DarkBlue;", width: "120px", onClick: "javascript:hish(#{c.id});") %>
+               <% else %>
+                  <%= image_tag(image_clip_path(c.id), width: "120px", onClick: "javascript:hish(#{c.id});") %>
+              <% end %>
+              <%= hidden_field_tag "img_#{c.id}", c.id %>
+            </div>
+        <% end %>
+        <% @clips.each do |c| %>
+            <div id="sel_<%= c.id %>" style="float: left;display: none;">
+              <%= image_tag(image_clip_path(c.id), width: "120px", onClick: "javascript:hish(#{c.id});") %>
+              <%= hidden_field_tag "img_#{c.id}", 0 %>
+            </div>
+        <% end %>
+
+      </div>
+      <div class="col-md-3">
+        <br>
+        <p><%= submit_tag "Valider", class: "btn btn-primary", style: 'float:left' %>&nbsp;&nbsp;<%= button_tag "Pas de clip", name: nil, class: 'btn btn-default', style: 'float:left', confirm: 'Attention aucun clip sélectionné' %>&nbsp;&nbsp;<button class="btn btn-warning" style="float:left" id="voir_clips">Voir les clips</button>       
+        <br><br>
+        Clips sélectionnés : <%= text_field_tag 'nb_sel', @clips_done.count, disabled: true, size: 5 %> Nb clips : <strong><%= @clips.count %></strong>&nbsp;&nbsp;</p>
+        <p><input name="new_credit" onClick="new_credit_change(this.value);" value="sans" type="radio" <%= "checked" if @tcredit == "sans" %>> Pas de crédit
+           <input name="new_credit"  onClick="new_credit_change(this.value);" value="image" type="radio" <%= "checked" if @tcredit == "image" %>> crédit Image
+           <input name="new_credit" onClick="new_credit_change(this.value);" value="page" type="radio" <%= "checked" if @tcredit == "page" %>> crédit Page
+        </p>
+        <% if current_user.admin? %>
+            <p><%= link_to 'Supprimer parution', paper_parution_path(@parution.id), method: :delete, data: { confirm: 'Voulez-vous vraiment supprimer cette parution et toutes ses pages ?' } %> </p>
+        <% end %>
+      </div>
+  <% end %>
+
+</div>
+

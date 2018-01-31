@@ -1,0 +1,226 @@
+<div class="row" id="new_clip" style="height: 30px; ">
+  <div class="col-md-12" style="padding-left: 50px;">
+    <%= form_tag clips_path, method: 'post', id: 'manual' do |f| %>
+        <input type="hidden" id="x1" name="x1" />
+        <input type="hidden" id="y1" name="y1" />
+        <input type="hidden" id="x2" name="x2" />
+        <input type="hidden" id="y2" name="y2" />
+        <input type="hidden" id="w" name="w" />
+        <input type="hidden" id="h" name="h" />
+        <input type="hidden" id="flow" name="flow" value=0 />
+        <input type="hidden" id="new_flow" name="new_flow" value="">
+        <%= hidden_field_tag "page_id", @page.id %>
+        <%= hidden_field_tag "page", (@next_page.to_i - 1) %>
+        <%= hidden_field_tag "filtre", @filter %>
+        <%= hidden_field_tag "period", @sel_period %>
+        <%= hidden_field_tag "parution", @parution.id %>
+        <%= hidden_field_tag "double", @image_double if @image_double %>
+        <%= submit_tag "Valider le clip manuel", class: "btn btn-primary", style: 'float:left' %>
+    <% end %>
+  </div>
+</div>
+<div class="row" style="padding-top: 100px;">
+  <div class="col-md-4">
+    <div id="page_1" style=" border:5px solid <%= border_color(@page) %>;">
+      <input type="button" class="btn btn-danger btn-sm zoom_clip" value="Zoom" style="padding-left:5px;"><br>
+      <img id="imgbox" src="<%= @image_double? @image_double : image_scanned_page_path(@page.id) %>" width="500px"/>
+    </div>
+    <div id="page_2" style="display:none;">
+      <input type="button" class="btn btn-danger btn-sm clip_zoom" value="Clip" style="padding-left:5px;"><br>
+      <img id="zoom" src="<%= @image_double? @image_double : image_scanned_page_path(@page.id) %>" width="500px" data-zoom-image="<%= @image_double? @image_double : big_image_scanned_page_path(@page.id) %>"/>
+    </div>
+  </div>
+  <div class="col-md-4" id="autrezoom">
+  </div>
+  <div class="col-md-4">
+    <div id="creditdiv" style="display:none;">
+      <h4><span style="color:darkred;"> Clip : sélectionner crédit</span></h4>
+      <%= collection_radio_buttons(:paper_scanned_page, :credit, PaperCredit.all.order(:flow_name), :flow_id, :flow_name)  do |b| %>
+          <div style="float:left;">
+         <%= b.radio_button(onclick: "finishcredit(this.value)") + b.label(style: "padding-left: 5px;") %><br>
+	      </div>
+      <% end %>
+      <label for="autre">Autre</label>
+      <input type="radio" name="autre" value="0" onclick="javascript:show_autre();"><br>
+      <div id="autrecredit" style="display:none;">
+        <input type="text" id="autre_agence" name="autre_agence" value=""><button onclick="valid_autre()">Valider ajout agence</button>
+      </div>
+
+    </div>
+    <div id="creditpagediv" style="display:none;">
+      <h4><span style="color:darkred;"> Crédit page</span></h4>
+      <% @papercredits.each do |pc| %>
+          <div style="float:left;">
+            &nbsp;&nbsp;<%= pc.flow_name %> : <input type="text" value="0" name="nb_<%= pc.flow_name %>"  maxlength="5" size="5" onchange="add_flow_name(this.value, '<%= pc.flow_name %>');">
+          </div>
+      <% end %>
+      <div style="clear:both"></div>
+      <div>
+       <span style="color:darkred;">En cas de nouveau crédit, merci d'entrer le nom de ce crédit + le nombre dans cette page</span><br>
+        <strong>Nouveau crédit</strong> : <input type="text" value="" name="new_name_ag" size="35" onchange="add_new_flow_name(this.value);"><br>Nb : <input type="text" value="0" name="nb_new"  maxlength="5" size="5" onchange="add_flow_name(this.value, 'new');">
+      </div>
+
+      <div style="clear:both;"></div>
+      <%= submit_tag "Valider", class: "btn btn-primary", onClick: "$('#valid_clips').submit();" %>
+    </div>
+  </div>
+</div>
+<div class="row" id="row_clips" style="padding-top: 300px; display:none;">
+  <div class="col-md-12" id="autredepot" style="width:930px; height: 450px; padding-left: 0.5em; float: left; margin-left: 10px; border-style: solid;overflow-x: hidden; overflow-y: auto;">
+    <% @clips.each do |c| %>
+        <div id="clip_<%= c.id %>" style="float:left;">
+          <%= image_tag(image_clip_path(c.id), width: "120px", :onClick => "javascript:shide(#{c.id});") %>
+        </div>
+    <% end %>
+  </div>
+</div>
+<script>
+$("#zoom").elevateZoom({zoomWindowPosition: "autrezoom", zoomWindowHeight: 500, zoomWindowWidth:500, borderSize: 0, easing:true});
+
+$( '.zoom_clip').click(function() {
+$( '#page_1' ).hide();
+$( '#page_2' ).show();
+});
+
+$( '.clip_zoom').click(function() {
+$( '#page_2' ).hide();
+$( '#page_1' ).show();
+});
+
+function new_credit_change(val) {
+    $('#tcredit').val(val);
+}
+
+$(function(){
+
+    $( '#manual' ).submit(function( evt ) {
+      var new_credit = $('input:radio[name=new_credit]:checked').val();
+      $( '#row_1' ).hide();
+      $( '#row_2' ).hide();
+      if ($('#creditdiv').css('display') == 'none' && new_credit == 'image') {
+        $( '#page_1' ).hide();
+        $( '#page_2' ).show();
+        $('#creditdiv').show();
+        evt.preventDefault();
+      }
+      else {
+        $("#manual").append("<input type='hidden' name='new_credit' value='"+new_credit+"'>");
+        return;
+      }
+    });
+
+
+  $( '#valid_clips' ).submit(function( evt ) {
+    var nb = $('#nb_sel').val();
+    if (nb == 0) {
+        if (confirm('Attention, aucun clip sélectionné !')) {
+          return true;
+        }
+        else {
+          return false;
+        }
+    }
+    var new_credit = $('input:radio[name=new_credit]:checked').val();
+    $( '#row_1' ).hide();
+    $( '#row_2' ).hide();
+    if ($('#creditpagediv').css('display') == 'none' && new_credit == 'page') {
+      $( '#page_1' ).hide();
+      $( '#page_2' ).show();
+      $('#creditpagediv').show();
+      evt.preventDefault();
+    }
+    else {
+      return;
+    }
+  });
+
+    $( '#page_paru' ).submit(function( evt ) {
+      var new_credit = $('input:radio[name=new_credit]:checked').val();
+      $("#page_paru").append("<input type='hidden' name='tcredit' value='"+new_credit+"' />");
+      return;
+    });
+
+  });
+</script>
+
+<script type="text/javascript">
+  function finishcredit(credit) {
+    $('#flow').val(credit);
+    $('#manual').submit();
+  }
+
+  function valid_autre() {
+    $('#flow').val(0);
+    aag = $('#autre_agence').val();
+    $('#new_flow').val(aag);
+    $('#manual').submit();
+  }
+
+  function finishpagecredit(credit) {
+    $('#flow').val(credit);
+    $('#manual').submit();
+  }
+
+  function shide(id) {
+        $('#sel_'+id).show();
+        $('#clip_'+id).hide();
+        $('#img_'+id).val(id);
+        var nb = $('#nb_sel').val();
+        $('#nb_sel').val(parseInt(nb) + 1);
+  }
+
+  function hish(id) {
+        $('#sel_'+id).hide();
+        $('#clip_'+id).show();
+        $('#img_'+id).val(0);
+        var nb = $('#nb_sel').val();
+        $('#nb_sel').val(parseInt(nb) - 1);
+  }
+
+  $(window).keyup(function(event) {
+    if ( event.which == '32' ) {
+      var monid = parseInt($('#mon_id').val());
+      if ( monid > 0 ) {
+        return;
+      }
+      else {
+        $( "#manual" ).submit();
+      }
+    }
+  });
+
+  function add_flow_name(nb, flow) {
+    var nombre = parseInt(nb);
+    if (nombre > 0) {
+      $('#flow_'+flow).val(nombre);
+    }
+  }
+
+  function add_new_flow_name(flow) {
+    $('#new_ag').val(flow);
+  }
+
+  function change_credit(credit) {
+    var nbre = parseInt($('#npc_'+credit).val());
+    if (nbre < 0) {
+        nbre = 0;
+        $('#npc_'+credit).val(nbre);
+    }
+    $('#pc_'+credit).val(nbre);
+  }
+
+  $( '#voir_clips' ).click(function () {
+    if ($('#row_clips').css('display') == 'none') {
+        $('#row_clips').show(); 
+        $('#voir_clips').text('cacher les clips');
+    }
+    else {
+        $('#row_clips').hide();
+        $('#voir_clips').text('voir les clips');
+    }
+    return false;
+  });
+
+</script>
+
+

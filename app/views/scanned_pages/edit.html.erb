@@ -1,0 +1,26 @@
+
+<div class="row" style="height: 80px;padding-top: 50px; padding-left:30px;align: left;">
+  <h3>NOM PUBLICATION<small> Date parution</small></h3>
+</div>
+<div class="row" align="center" style="color:#000;">
+
+  <h1>Sélectionnez l'image de la page et Validez</h1>
+
+  <img src="/images/page1.jpg" id="imgbox" />
+
+  <%= form_tag("/valid_crop", :method => :post, :class => "coords") do %>
+      <input type="hidden" id="x1" name="x1" />
+      <input type="hidden" id="y1" name="y1" />
+      <input type="hidden" id="x2" name="x2" />
+      <input type="hidden" id="y2" name="y2" />
+      <input type="hidden" id="w" name="w" />
+      <input type="hidden" id="h" name="h" />
+      <%= hidden_field_tag("img", "1") %>
+      <p>&nbsp;</p>
+      <%= button_tag("Annuler") %> | <%= submit_tag("Valider") %>
+  <% end %>
+
+  <p>
+  </p>
+
+</div>

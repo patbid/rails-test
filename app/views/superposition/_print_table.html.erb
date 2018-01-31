@@ -1,0 +1,38 @@
+<table class="display table" style="font-size:12px;" id="match_imgs" cellspacing="0" width="100%">
+  <thead>
+  <tr>
+    <th>Scan Page</th>
+    <th>Image site</th>
+    <th>Clip</th>
+    <th>Erreur</th>
+    <th>String Key</th>
+    <th>Date</th>
+  </tr>
+  </thead>
+  <tbody>
+  <% @mimgs.each do |im| %>
+      <tr>
+        <% page = "" %>
+        <% page = im.paper_scanned_page_path.gsub("/mnt/storage","datas.prod") unless im.paper_scanned_page_path.blank? %>
+        <td><img class="zoom" src="<%= page %>" width="500px" data-zoom-image="<%= page %>"/></td>
+        <% med = "" %>
+        <% med = im.medium_location.gsub("/mnt/storage/","datas.") unless im.medium_location.blank? %>
+        <td><img src="<%= med %>" width="280"></td>
+        <td><%= image_tag(image_clip_path(im.clip_id), width: "120px") %><br><%= "Clip 1 sur #{PaperScannedPage.find(im.paper_scanned_page_id).clip_selected_count}" %></td>
+        <td width="80" class="err" align="center" style="background-color:#ccccff;"><%= check_box_tag "error_id[]", "#{im.id}", (im.error == 0)? false : true, class: "chkbox" %></td>
+        <td><%= im.string_key %></td>
+        <td><%= l im.created_at %><br><%= im.email %></td>
+      </tr>
+  <% end %>
+  </tbody>
+  <thead>
+  <tr>
+    <th>Scan Page</th>
+    <th>Image site</th>
+    <th>Clip</th>
+    <th>Erreur <input type="checkbox" id="selectAll"></th>
+    <th>String Key</th>
+    <th>Date</th>
+  </tr>
+  </thead>
+</table>

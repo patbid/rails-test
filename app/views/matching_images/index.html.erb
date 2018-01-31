@@ -1,0 +1,223 @@
+<script type="text/javascript">
+(function($) {
+    $.fn.goTo = function() {
+        $('html, body').animate({
+            scrollTop: ($(this).offset().top-50) + 'px'
+        }, 'fast');
+        return this; // for chaining...
+    }
+})(jQuery);
+
+  jQuery(document).ready(function(){
+
+    $('#match_imgs').dataTable( {
+      "pageLength": 50,
+    "searching": false,
+      "paging": false,
+      "language": {
+        "lengthMenu": "Afficher _MENU_ par page",
+        "zeroRecords": "Aucun résultat",
+        "info": "Page _PAGE_ sur _PAGES_",
+        "infoEmpty": "Aucun résultat",
+        "infoFiltered": "(sur _MAX_ au total)",
+        "search": "Chercher&nbsp;:",
+        "paginate": {
+          "first":      "Premier",
+          "previous":   "Pr&eacute;c&eacute;dent",
+          "next":       "Suivant",
+          "last":       "Dernier"
+        }
+      }
+    });
+  });
+
+</script>
+<style>
+  .act_tr { background-color:#ccccff; }
+</style>
+<% tab_crawler = { "0" => "Tous", "2" => "VPS", "4" => "Crawler", "8" => "Crawler +" } %>
+<div class="container">
+  <h4>Liste des Matchs</h4>
+</div> <!-- /container -->
+<div class="container-fluid">
+  <div class="row" style="padding-top: 50px; padding-left:30px;align: left;">
+    <div class="col-md-12 ">
+      <div class="table-responsive">
+        <%= form_tag matching_images_path, method: 'get', id: 'debut_fin'  do %>
+            <%= hidden_field_tag :crawler, @crawler %>
+            <%= hidden_field_tag :stringkey, @stringkey %>
+            <div align="left" style="padding-left:20px;">
+              <div style="float: left;">
+                <% if @debut.to_i > 1 %>
+                    <%= hidden_field_tag :debut, @debut %>
+                    <%= hidden_field_tag :fin, '0' %>
+                    <button style="background-color: darkred; color: white;" onclick="put_fin();"> Fin </button>
+                <% else %>
+                    <%= hidden_field_tag :debut, '1' %>
+                    <%= hidden_field_tag :fin, '0' %>
+                    <button style="background-color: darkgreen; color: white;" onclick="this.form.submit();"> Début </button>
+                <% end %>
+              </div>
+            </div>
+        <% end %>
+        <%= form_tag matching_images_path, method: 'get', name: "change_crawler"  do %>
+            <div style="float: left; padding-left: 60px;">
+              <%= select_tag :crawler, options_for_select(tab_crawler.collect{ |k,v| [v, k]}, @crawler), onchange: "javascript: document.change_crawler.submit();" %>
+              <%= select_tag :stringkey, options_for_select(@stringkeys.each{ |v| [v, v]}, @stringkey), { prompt: 'Tous', onchange: "javascript: document.change_crawler.submit();" } %>
+            </div>
+        <% end %>
+        <%= form_tag matching_images_path, method: 'post', name: 'mi_form', id: 'mi_form'  do %>
+            <%= hidden_field_tag :imgs, @imgs %>
+            <%= hidden_field_tag :crawler, @crawler %>
+            <%= hidden_field_tag :stringkey, @stringkey %>
+            <%= hidden_field_tag :debut, @debut %>
+            <%= hidden_field_tag :fin, @fin %>
+            <div align="right" style="padding-right:40px;">
+              <strong><%= @nb_match %></strong> matches restant à traiter&nbsp;&nbsp;&nbsp;&nbsp;<input type="button" id="goto_first" value="déplacement clavier">&nbsp;&nbsp;<button id="okbutton" type="submit" class="btn btn-danger btn-md">Valider</button>
+            </div>
+        <table class="display table" style="font-size:12px;" id="match_imgs" cellspacing="0" width="100%">
+          <thead>
+          <tr>
+            <th>Image site</th>
+            <th>Photo</th>
+            <th>Erreur <input type="checkbox" id="selectAll"></th>
+            <th>Page</th>
+            <th>String Key</th>
+            <th>Domaine</th>
+            <th>Pays</th>
+            <th>Date</th>
+          </tr>
+          </thead>
+          <tbody>
+          <% @mimgs.each do |im| %>
+            <tr>
+              <td><img src="<%= im.url_image %>" width="250"></td>
+	            <% med = im.medium_location.gsub("/mnt/storage/","datas.") %>
+              <td><img src="<%= med %>" width="250"></td>
+              <td width="80" class="err" align="center" style="background-color:#ccccff;"><%= check_box_tag "error_id[]", "#{im.id}", false, class: "chkbox" %></td>
+              <td><a href="<%= im.url_parent %>" target="_blank">Voir page</a><br>(<%= im.origin_id %>)</td>
+              <td><%= im.string_key %></td>
+              <td><%= im.domain %></td>
+              <td><%= im.country_name %></td>
+              <td><%= l im.created_at %></td>
+            </tr>
+          <% end %>
+          </tbody>
+         <thead>
+          <tr>
+            <th>Image site</th>
+            <th>Photo</th>
+            <th>Erreur></th>
+            <th>Page</th>
+            <th>String Key</th>
+            <th>Domaine</th>
+            <th>Pays</th>
+            <th>Date</th>
+          </tr>
+          </thead>
+        </table>
+           <div align="right" style="padding-right:20px;">
+              <button id="okbutton" type="submit" class="btn btn-danger btn-md">Valider</button>
+            </div>
+            <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function put_fin() {
+    $('#fin').val('1');
+    $('#debut_fin').submit();
+  }
+
+  function highlight(tableIndex) {
+    // Just a simple check. If .highlight has reached the last, start again
+    if( (tableIndex+1) > $('#match_imgs tbody tr').length )
+      tableIndex = 0;
+
+    // Element exists?
+    if($('#match_imgs tbody tr:eq('+tableIndex+')').length > 0)
+    {
+      // Remove other highlights
+      $('#match_imgs tbody tr').removeClass('act_tr');
+
+      // Highlight your target
+      $('#match_imgs tbody tr:eq('+tableIndex+')').addClass('act_tr');
+    }
+  }
+
+  $('#goto_first').click(function() {
+    highlight(0);
+    return false;
+  });
+
+  $(document).keydown(function (e) {
+
+    switch(e.which)
+    {
+      case 32:
+        e.preventDefault();
+	if ($("#match_imgs tbody tr.act_tr input:checkbox")[0].checked === true) {
+          $("#match_imgs tbody tr.act_tr input:checkbox")[0].checked = false;
+        }
+        else {
+          $("#match_imgs tbody tr.act_tr input:checkbox")[0].checked = true;
+	}
+	hightlight($('#match_imgs tbody tr.act_tr').index());
+        break;
+      case 38:
+	highlight($('#match_imgs tbody tr.act_tr').index() - 1);
+	$('#match_imgs tbody tr.act_tr').goTo();
+        break;
+      case 40:
+        highlight($('#match_imgs tbody tr.act_tr').index() + 1);
+	$('#match_imgs tbody tr.act_tr').goTo();
+        break;
+    }
+
+  });
+
+	$('td.err').click(function (event) {
+    	  if (!$(event.target).is('input')) {
+       	    $('input:checkbox', this).prop('checked', function (i, value) {
+           return !value;
+          });
+    }
+});
+
+  $('#selectAll').click(function() {
+    $('.chkbox:checkbox').each( function() {
+      $(this).prop('checked', 0);
+    });
+    if (this.checked) {
+      $('.chkbox:checkbox').each( function() {
+        $(this).prop('checked', 1);
+      });
+    }
+  });
+
+  $.fn.shiftClick = function () {
+    var lastSelected;
+    var checkBoxes = $(this);
+    this.each(function () {
+      $(this).click(function (ev) {
+        if (ev.shiftKey) {
+          var last = checkBoxes.index(lastSelected);
+          var first = checkBoxes.index(this);
+          var start = Math.min(first, last);
+          var end = Math.max(first, last);
+          var chk = lastSelected.checked;
+          for (var i = start; i <= end; i++) {
+            checkBoxes[i].checked = chk;
+          }
+        }
+        else {
+          lastSelected = this;
+        }
+      })
+    });
+  };
+  $('.chkbox').shiftClick();
+</script>
+

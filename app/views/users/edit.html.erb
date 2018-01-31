@@ -1,0 +1,19 @@
+<div style="padding-left: 100px;">
+  <br><br><h2>Modification d'un utilisateur</h2>
+  <br><br>
+  <%= form_tag user_path(@user.id), method: :put, class: "form-inline", role: "form" do |f| %>
+
+      <div class="form-group" style="height:40px;">
+        <label for="email" style="width:130px;">Email :</label>
+        <%= email_field_tag 'email', @user.email, size: 70, class: 'form-control' %>
+      </div><br>
+      <div class="form-group" style="height:40px;">
+        <label for="controle" style="width:130px;">Contrôleur :</label>
+        <%= check_box_tag "admin", "1", @user.admin.blank? ? false : true %>
+      </div><br>
+      <br><br>
+
+      <span style="padding-left: 130px;">&nbsp;</span><button type="submit" class="btn btn-default">Valider</button>
+  <% end %>
+</div>
+

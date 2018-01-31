@@ -1,0 +1,22 @@
+
+<div class="container">
+</div> <!-- /container -->
+<div class="container-fluid">
+  <div class="row" style="padding-top: 150px; padding-left:30px;align: left;">
+    <div class="col-md-12 ">
+      <h4>Valider des  Matchs (<%= @nbmi %> en attente)</h4>
+      <br><p><a href="/matching_images">revenir à l'appli</a></p><br><br>
+      <div class="table-responsive">
+        <%= form_tag valid_purge_mi_path, method: 'post', id: 'purge', class: "form-inline", role: "form"  do %>
+            <div class="form-group" style="height:40px;">
+              <label for="nb" style="width:130px;">Nombre :</label>
+              <%= number_field_tag 'nb_mi', '0', size: 20, class: 'form-control' %>
+            </div><br>
+            <br><br>
+
+            <span style="padding-left: 130px;">&nbsp;</span><button type="submit" class="btn btn-default">Valider</button>
+      <% end %>
+        </div>
+      </div>
+    </div>
+

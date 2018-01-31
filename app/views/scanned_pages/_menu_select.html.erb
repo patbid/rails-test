@@ -1,0 +1,57 @@
+<% tab_filters = { "0" => "Etat parution", "1" => "Validation automatique", "2" => "A valider", "3" => "Validées", "4" => "RI OK" } %>
+<%= form_tag '/scanned_pages', method: 'get', id: 'page_paru', name: 'page_paru', class: 'form-inline' do |f| %>
+    <div class="col-md-12">
+      <p>
+        <%= hidden_field_tag "next_page", @next_page %>
+        <%= hidden_field_tag "next_paru", @next_paru %>
+        <%= hidden_field_tag "current_paru", @parution.id %>
+        <%= hidden_field_tag "current_filter", @filter %>
+        <%= hidden_field_tag "current_period", @sel_period %>
+        <%= hidden_field_tag "page_id", @page.id %>
+        <%= submit_tag "RI", name: 'RI', class: 'btn btn btn-warning btn-xs' if @filter == 4 %>&nbsp;
+        <%= submit_tag "double", name: 'double', class: 'btn btn btn-info btn-xs' unless @image_double %>&nbsp;
+        <%= select_tag "filtre", options_for_select(tab_filters.collect{ |k,v| [v, k]}, @filter), :onchange => "this.form.submit();" %>
+        <%= select_tag "parution", options_for_select(@parus.collect{ |p| ["#{PaperPublication.find(p.instance_id).title} #{PaperPublication.find(p.instance_id).publication_addon_name} #{p.publication_date}", p.id]}, @parution.id), include_blank: "All parutions", :onchange => "this.form.submit();" %>
+        <%= select_tag "period", options_from_collection_for_select(@period, "id", "name", @sel_period), include_blank: "Periodicity", :onchange => "this.form.submit();" %>
+        <%= text_field_tag "msid", nil, placeholder: "Entrez ms_image_id" %><%= submit_tag "OK", name: 'ms_img', class: "btn btn-primary btn-sm" %> </p>
+      </p>
+    </div>
+    <div class="row">
+      <div class="col-md-7">
+        <% if @page.nil? %>
+            <h4>Aucune page pour cette sélection</h4>
+        <% else %>
+            <h4><small>(<%= @parution.id %>/<%= @publi.id %>)</small> <%= @publi.title %> <%= @publi.publication_addon_name %><small> <%= @parution.publication_date.strftime("%d %m %Y") %> Page : <%= @page.page_number %> Nbre de pages : <strong><%= @parution.sequence_size %></strong> Traitées : <strong><%= @nb_pages_fin %></strong> Nbre total de pages : <strong><%= @total_pages %></strong></small></h4>
+        <% end %>
+      </div>
+      <div class="col-md-1">
+        <%= submit_tag "Keyword OK", name: 'keyw', class: "btn btn-danger btn-sm" %>
+      </div>
+      <div class="col-md-3">
+        <%#= select_tag "page", options_for_select((1..@pages.count).each{|i| "<option value=#{i}>#{i}#{@pagesok[(i-1)]}</option>"}, @page.page_number), :onchange => "this.form.submit();" %>
+        <select name="page" id="page" onchange="this.form.submit();">
+          <% (1..@pages.count).each do |i| %>
+              <option value="<%= i %>"
+              <%= "selected" if i == @page.page_number %>
+              ><%= i %><%= @pagesok[(i-1)] %></option>
+          <% end %>
+        </select>&nbsp;&nbsp;
+        <%= submit_tag "|<<", name: 'pageprem', class: "btn btn-primary btn-sm" %>&nbsp;<%= submit_tag "|<", name: 'prec', class: "btn btn-primary btn-sm" %>&nbsp;&nbsp;<%= submit_tag ">|", name: 'suiv', class: "btn btn-primary btn-sm" %>&nbsp;<%= submit_tag ">>|", name: 'pageder', class: "btn btn-primary btn-sm" %>
+      </div>
+      <div class="col-md-1">
+      </div>
+    </div>
+<% end %>
+<% unless @pagecredits.blank? %>
+    <div class="row">
+      <div class="col-md-12">
+        <% @pagecredits.each do |pc| %>
+          <% unless pc.credit_id == 0 || pc.number == 0 %>
+            <%= flow_name(pc.credit_id) %> (<%= pc.number %>)
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+<% end %>
+
+

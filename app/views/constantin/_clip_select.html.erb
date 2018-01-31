@@ -1,0 +1,13 @@
+<div class="col-md-12">
+      <div class="col-md-12" id="depose" style="max-width:1500px;height:200px; padding: 0.5em; float: left; margin: 10px; border-style: solid;overflow-x: auto; overflow-y: auto; white-space: nowrap;">
+        <% @clips.each do |c| %>
+            <div id="sel_<%= c.id %>" style="float: left;">
+              <%= image_tag(image_clip_path(c.id), width: "120px") %>
+              <br>
+              <%= link_to "+", constantin_path(id: c.id), remote: true %>
+            </div>
+        <% end %>
+
+      </div>
+</div>
+

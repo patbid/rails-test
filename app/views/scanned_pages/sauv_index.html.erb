@@ -1,0 +1,123 @@
+<script type="text/javascript">
+
+    jQuery(document).ready(function(){
+
+        $('#new_clip').hide();
+
+        jQuery('#imgbox').Jcrop({
+            onChange: showCoords,
+            onSelect: showCoords
+        });
+
+    });
+
+    function showCoords(c)
+    {
+        jQuery('#x1').val(c.x);
+        jQuery('#y1').val(c.y);
+        jQuery('#x2').val(c.x2);
+        jQuery('#y2').val(c.y2);
+        jQuery('#w').val(c.w);
+        jQuery('#h').val(c.h);
+        jQuery('#new_clip').show();
+    };
+
+</script>
+
+<% if @erreur %>
+    <div class="row"><%= @erreur %></div>
+    <div class="row" style="height: 80px;padding-top: 50px; padding-left:30px;align: left;">
+      <p>
+        <%= form_tag '/scanned_pages', method: 'get', name: 'page_paru', class: 'form-inline' do |f| %>
+            <%= hidden_field_tag "next_page", @next_page %>
+            <%= hidden_field_tag "current_pub", @publi.id %>
+            <%= hidden_field_tag "current_paru", 0 %>
+            <%= select_tag "pub", options_from_collection_for_select(@pubs, "id", "publication_name", @publi.id) %>
+            <%#= select_tag "parution", options_from_collection_for_select(@parus, "id", "created_at") %>
+            <%= submit_tag "voir", class: "btn btn-primary" %>
+        <% end %>
+      </p>
+      <h4><%= @publi.title %><small> <%= l @publi.created_at %></h4>
+    </div>
+<% else %>
+    <div class="row" style="height: 150px;padding-top: 50px;">
+      <%= form_tag '/scanned_pages', name: "valid_clips", onSubmit: 'return validateform();' do |f| %>
+          <%= hidden_field_tag "page_id", @page.id %>
+          <%= hidden_field_tag "parution", @parution.id %>
+          <div class="col-md-8" id="depose" style="max-width:900px;height:140px; padding: 0.5em; float: left; margin: 10px; border-style: solid;overflow-x: auto; overflow-y: hidden; white-space: nowrap;">
+
+          </div>
+          <div class="col-md-3">
+            <br>
+            <%= submit_tag "Valider", class: "btn btn-primary", style: 'float:left' %>
+            <br>
+            <br>
+            <%= button_tag "Pas de clip", name: nil, class: 'btn btn-default', style: 'float:left' %>
+            <br><br />
+            <p>Nombre de clips : <strong><%= @clips.count %></strong></p>
+          </div>
+      <% end %>
+    </div>
+    <div class="row" style="height: 80px;padding-top: 50px; padding-left:30px;align: left;">
+      <p>
+        <%= form_tag '/scanned_pages', method: 'get', name: 'page_paru', class: 'form-inline' do |f| %>
+            <%= hidden_field_tag "next_page", @next_page %>
+            <%= hidden_field_tag "current_pub", @publi.id %>
+            <%= hidden_field_tag "current_paru", @parution.id %>
+            <%= select_tag "pub", options_from_collection_for_select(@pubs, "id", "publication_name", @publi.id) %>
+            <%= select_tag "parution", options_from_collection_for_select(@parus, "id", "created_at", @parution.id) %>
+            <%= submit_tag "page suivante", class: "btn btn-primary" %>
+        <% end %>
+      </p>
+      <h4><%= @publi.title %><small> <%= l @publi.created_at %> Page : <%= @page.page_number %> Nbre de pages de la parution : <strong><%= @pages.count %></strong></small></h4>
+    </div>
+    <div class="row" style="height: 500px;padding-top: 80px;">
+      <div class="col-md-5">
+        <div id="new_clip" style="width:400px;height: 50px; padding: 0.5em; float: left; margin: 10px; border-style: solid; ">
+          <%= form_tag clips_path, method: 'post' do |f| %>
+              <input type="hidden" id="x1" name="x1" />
+              <input type="hidden" id="y1" name="y1" />
+              <input type="hidden" id="x2" name="x2" />
+              <input type="hidden" id="y2" name="y2" />
+              <input type="hidden" id="w" name="w" />
+              <input type="hidden" id="h" name="h" />
+              <%= hidden_field_tag "page", @page.id %>
+              <%= submit_tag "Valider", class: "btn btn-primary", style: 'float:left' %>
+          <% end %>
+        </div>
+        <%= image_tag(image_scanned_page_path(@page.id), width: "500px", id: 'imgbox') %>
+      </div>
+      <div class="col-md-7" id="autredepot" style="width:500px;height: 450px; padding: 0.5em; float: left; margin: 10px; border-style: solid; ">
+        <% @clips.each do |c| %>
+        <span>
+          <img src="<%= image_tag(image_clips_path(c.id)) %>" width="120">
+          <%= hidden_field_tag "img_#{c.id}", c.id %>
+        </span>
+        <% end %>
+      </div>
+    </div>
+<% end %>
+<script type="text/javascript">
+    $(window).load(function(){
+        $('span').draggable({
+            revert:true,
+            containment:"document"
+        });
+
+        $('#autredepot, #depose').droppable({
+            drop:function(event, ui) {
+                ui.helper.detach().appendTo($(this));
+            }
+        });
+    });
+
+
+</script>
+
+<script language="JavaScript">
+    function validateform() {
+        var nb = $('#depose').find('span').length;
+        if (confirm(nb+' clips validés')) { return true; }
+        else { return false; }
+    }
+</script>

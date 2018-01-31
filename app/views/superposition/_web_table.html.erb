@@ -1,0 +1,38 @@
+<table class="display table" style="font-size:12px;" id="match_imgs" cellspacing="0" width="100%">
+  <thead>
+  <tr>
+    <th>Image site</th>
+    <th>Photo</th>
+    <th>Erreur <input type="checkbox" id="selectAll"></th>
+    <th>Page</th>
+    <th>String Key</th>
+    <th>Domaine</th>
+    <th>Date</th>
+  </tr>
+  </thead>
+  <tbody>
+  <% @mimgs.each do |im| %>
+      <tr>
+        <td><img src="<%= im.url_image %>" width="250"></td>
+        <% med = im.medium_location.gsub("/mnt/storage/","datas.") %>
+        <td><img src="<%= med %>" width="250"></td>
+        <td width="80" class="err" align="center" style="background-color:#ccccff;"><%= check_box_tag "error_id[]", "#{im.id}", (im.error === false)? false : true, class: "chkbox" %></td>
+        <td><a href="<%= im.url_parent %>" target="_blank">Voir page</a><br>(<%= im.origin_id %>)</td>
+        <td><%= im.string_key %></td>
+        <td><%= im.domain %></td>
+        <td><%= l im.created_at %></td>
+      </tr>
+  <% end %>
+  </tbody>
+  <thead>
+  <tr>
+    <th>Image site</th>
+    <th>Photo</th>
+    <th>Erreur></th>
+    <th>Page</th>
+    <th>String Key</th>
+    <th>Domaine</th>
+    <th>Date</th>
+  </tr>
+  </thead>
+</table>

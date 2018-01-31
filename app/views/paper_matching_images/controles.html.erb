@@ -1,0 +1,237 @@
+<script type="text/javascript">
+  (function($) {
+    $.fn.goTo = function() {
+      $('html, body').animate({
+        scrollTop: ($(this).offset().top-50) + 'px'
+      }, 'fast');
+      return this; // for chaining...
+    }
+  })(jQuery);
+
+  jQuery(document).ready(function(){
+
+    $('#match_imgs').dataTable( {
+      "pageLength": 50,
+      "searching": false,
+      "paging": false,
+      "language": {
+        "lengthMenu": "Afficher _MENU_ par page",
+        "zeroRecords": "Aucun résultat",
+        "info": "Page _PAGE_ sur _PAGES_",
+        "infoEmpty": "Aucun résultat",
+        "infoFiltered": "(sur _MAX_ au total)",
+        "search": "Chercher&nbsp;:",
+        "paginate": {
+          "first":      "Premier",
+          "previous":   "Pr&eacute;c&eacute;dent",
+          "next":       "Suivant",
+          "last":       "Dernier"
+        }
+      }
+    });
+  });
+
+</script>
+<script type="text/javascript">
+  $(document).ready(function(){
+    $('.datepicker').datepicker({
+      format: 'dd-mm-yyyy',
+    });
+  });
+</script>
+<style>
+  .act_tr { background-color:#ccccff; }
+</style>
+<div class="container">
+  <h4>Liste des Matchs</h4>
+</div> <!-- /container -->
+<% tab_erreur = { "3" => "Tout", "0" => "OK", "1" => "Erreur validée" } %>
+<% tab_manauto = { "2" => "Tout", "1" => "manuel", "0" => "auto" } %>
+<% tab_controled = { "2" => "Tout", "1" => "Contrôlé", "0" => "Non contrôlé" } %>
+<div class="container-fluid">
+  <div class="row" style="padding-top: 50px; padding-left:30px;align: left;">
+    <div class="col-md-12 ">
+      <%= form_tag controles_path, method: 'get'  do %>
+          <div align="left" style="padding-left:20px;">
+            <div style="float: left;"><%= select_tag "controled", options_for_select(tab_controled.collect{ |k,v| [v, k]}, @controled) %></div>
+            <div style="float: left;">&nbsp;&nbsp;<%= select_tag "util", options_from_collection_for_select(@users, :id, :email, @util), include_blank: 'Tous' %></div>
+            <div style="float: left;">&nbsp;&nbsp;<%= select_tag "erreur", options_for_select(tab_erreur.collect{ |k,v| [v, k]}, @erreur) %></div>
+            <div style="float: left;">&nbsp;&nbsp;<%= text_field_tag :date_begin, @dat_begin, size: '8', class: 'datepicker' %></div>
+            <div style="float: left;">&nbsp;&nbsp;<%= text_field_tag :date_end, @dat_end, size: '8',  class: 'datepicker' %></div>
+            <div style="float: left;">&nbsp;&nbsp;<%= select_tag :manauto, options_for_select(tab_manauto.collect{ |k,v| [v, k]}, @manauto) %></div>
+            <div style="float: left;"><%= select_tag "publi", options_for_select(@publis.collect{ |p| ["#{p.publication_name} #{p.pdate}", p.id]}, @publi), include_blank: 'Toutes' %></div>
+            <div style="float: left;">&nbsp;&nbsp;<%= text_field_tag :no_page, @no_page, size: 3 %></div>
+            <div style="float: left;">&nbsp;&nbsp;<%= submit_tag 'OK', class: 'btn btn-primary', style: "font-weight: bold;" %></div>
+          </div>
+      <% end %>
+    </div>
+  </div>
+  <div class="row" style="padding-top: 15px; ">
+    <div class="col-md-12 ">
+      <%= form_tag valid_controles_paper_matching_images_path, method: 'post', name: 'mi_form', id: 'mi_form'  do %>
+          <%= hidden_field_tag :imgs, @imgs %>
+          <%= hidden_field_tag :date_begin, @dat_begin %>
+          <%= hidden_field_tag :date_end, @dat_end %>
+          <%= hidden_field_tag :util, @util %>
+          <%= hidden_field_tag :erreur, @erreur %>
+          <%= hidden_field_tag :publi, @publi %>
+          <%= hidden_field_tag :manauto, @manauto %>
+          <%= hidden_field_tag :controled, @controled %>
+          <%= hidden_field_tag :no_page, @no_page %>
+          <div align="right" style="padding-right:20px;">
+            <strong><%= @nb_match %></strong> matchs trouvés au total&nbsp;&nbsp;&nbsp;&nbsp;<input type="button" id="goto_first" value="déplacement clavier">&nbsp;&nbsp;<button id="okbutton" type="submit" class="btn btn-danger btn-md">Valider</button>
+          </div>
+          <div class="table-responsive">
+            <table class="display table" style="font-size:12px;" id="match_imgs" cellspacing="0" width="100%">
+              <thead>
+              <tr>
+                <th>Scan Page</th>
+                <th>Image site</th>
+                <th>Clip</th>
+                <th>Erreur <input type="checkbox" id="selectAll"></th>
+                <th>String Key</th>
+                <th>Date</th>
+              </tr>
+              </thead>
+              <tbody>
+              <% @mimgs.each do |im| %>
+                  <tr>
+                    <% page = "" %>
+                    <% page = im.paper_scanned_page_path.gsub("/mnt/storage","datas.prod") unless im.paper_scanned_page_path.blank? %>
+                    <td align="center">
+                      <%= pub_name(im.paper_scanned_page_id) %>
+                      <%= paru_date(im.paper_scanned_page_id) %><br>
+                      <img class="zoom" src="<%= page %>" width="500px" data-zoom-image="<%= page %>"/><br>
+                      <strong>(<%= im.paper_scanned_page_id %>) Page <%= no_page(im.paper_scanned_page_id) %></strong>
+                    </td>
+                    <% med = "" %>
+                    <% med = im.medium_location.gsub("/mnt/storage/","datas.") unless im.medium_location.blank? %>
+                    <td>ms_image_id = <%= im.ms_image_id %><br><img src="<%= med %>" width="280"><br>
+                    <%= nb_imgs(im.paper_scanned_page_id, im.clip_id) %> image(s) trouvée(s)
+                    </td>
+                    <td>clip_id = <%= im.clip_id %><br><%= image_tag(image_clip_path(im.clip_id), width: "120px") %><br><%= "Clip 1 sur #{nb_clips(im.paper_scanned_page_id)}" %></td>
+                    <td width="80" class="err" align="center" style="background-color:#ccccff;"><%= check_box_tag "error_id[]", "#{im.id}", (im.error == 0)? false : true, class: "chkbox" %></td>
+                    <td><%= im.string_key %></td>
+                    <td><u>validé le</u> : <%= l im.validated_at %><br><u>par</u> : <%= im.email %>
+                    <% if im.controled_by > 0 %>
+                          <br><u>contrôlé le</u> : <%= l im.controled_at unless im.controled_at.nil? %><br><u>par</u> : <%= email_cntrl(im.controled_by) unless im.controled_by == 0 %>
+                    <% end %>
+                    </td>
+                  </tr>
+              <% end %>
+              </tbody>
+              <thead>
+              <tr>
+                <th>Scan Page</th>
+                <th>Image site</th>
+                <th>Clip</th>
+                <th>Erreur <input type="checkbox" id="selectAll"></th>
+                <th>String Key</th>
+                <th>Date</th>
+              </tr>
+              </thead>
+            </table>
+            <div align="right" style="padding-right:20px;">
+              <button id="okbutton" type="submit" class="btn btn-danger btn-md">Valider</button>
+            </div>
+      <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  $("#zoom").elevateZoom({zoomWindowPosition: "autredepot", zoomWindowHeight: 500, zoomWindowWidth:500, borderSize: 0, easing:true});
+</script>
+<script>
+                            function highlight(tableIndex) {
+                              // Just a simple check. If .highlight has reached the last, start again
+                              if( (tableIndex+1) > $('#match_imgs tbody tr').length )
+                                tableIndex = 0;
+
+                              // Element exists?
+                              if($('#match_imgs tbody tr:eq('+tableIndex+')').length > 0)
+                              {
+                                // Remove other highlights
+                                $('#match_imgs tbody tr').removeClass('act_tr');
+
+                                // Highlight your target
+                                $('#match_imgs tbody tr:eq('+tableIndex+')').addClass('act_tr');
+                              }
+                            }
+
+                            $('#goto_first').click(function() {
+                              highlight(0);
+                              return false;
+                            });
+
+                            $(document).keydown(function (e) {
+
+                              switch(e.which)
+                              {
+                                case 32:
+                                  e.preventDefault();
+                                  if ($("#match_imgs tbody tr.act_tr input:checkbox")[0].checked === true) {
+                                    $("#match_imgs tbody tr.act_tr input:checkbox")[0].checked = false;
+                                  }
+                                  else {
+                                    $("#match_imgs tbody tr.act_tr input:checkbox")[0].checked = true;
+                                  }
+                                  hightlight($('#match_imgs tbody tr.act_tr').index());
+                                  break;
+                                case 38:
+                                  highlight($('#match_imgs tbody tr.act_tr').index() - 1);
+                                  $('#match_imgs tbody tr.act_tr').goTo();
+                                  break;
+                                case 40:
+                                  highlight($('#match_imgs tbody tr.act_tr').index() + 1);
+                                  $('#match_imgs tbody tr.act_tr').goTo();
+                                  break;
+                              }
+
+                            });
+
+                            $('td.err').click(function (event) {
+                              if (!$(event.target).is('input')) {
+                                $('input:checkbox', this).prop('checked', function (i, value) {
+                                  return !value;
+                                });
+                              }
+                            });
+
+                            $('#selectAll').click(function() {
+                              $('.chkbox:checkbox').each( function() {
+                                $(this).prop('checked', 0);
+                              });
+                              if (this.checked) {
+                                $('.chkbox:checkbox').each( function() {
+                                  $(this).prop('checked', 1);
+                                });
+                              }
+                            });
+
+                            $.fn.shiftClick = function () {
+
+                              var lastSelected;
+                              var checkBoxes = $(this);
+                              this.each(function () {
+                                $(this).click(function (ev) {
+                                  if (ev.shiftKey) {
+                                    var last = checkBoxes.index(lastSelected);
+                                    var first = checkBoxes.index(this);
+                                    var start = Math.min(first, last);
+                                    var end = Math.max(first, last);
+                                    var chk = lastSelected.checked;
+                                    for (var i = start; i <= end; i++) {
+                                      checkBoxes[i].checked = chk;
+                                    }
+                                  }
+                                  else {
+                                    lastSelected = this;
+                                  }
+                                })
+                              });
+                            };
+                            $('.chkbox').shiftClick();
+                          </script>
+

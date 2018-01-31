@@ -1,0 +1,21 @@
+<div class="col-md-12">
+  <%= form_tag keyw_clip_path(1), method: 'get', id: 'keywds' do |f| %>
+      <%= hidden_field_tag "page", (@next_page.to_i - 1) %>
+      <%= hidden_field_tag "filtre", @filter %>
+      <%= hidden_field_tag "period", @sel_period %>
+      <%= hidden_field_tag "parution", @parution.id %>
+        <%= hidden_field_tag "page_id", @page.id %>
+      <%= hidden_field_tag "tcredit", @tcredit %>
+      <%= hidden_field_tag "mon_id", "0" %>
+      <div class="form-group">
+        <div>
+          <label for="keyw" class="control-label" style="width:150px;">Mots-clé</label>
+          <%= text_field_tag 'keyw', nil, class: 'form-control', style: "height: 35px;" %><br>
+        </div>
+      </div>
+
+      <%= submit_tag "Valider mots-clé", class: "btn btn-success" %>
+  <% end %>
+</div>
+
+
